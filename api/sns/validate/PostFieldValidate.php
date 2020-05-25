@@ -16,6 +16,5 @@ class PostFieldValidate extends Validate
     protected $rule = [
         'content'       =>  'require',
         'topic_id'      =>  'require|number',
-        'from_uid'      =>  'require|number',
     ];
 }

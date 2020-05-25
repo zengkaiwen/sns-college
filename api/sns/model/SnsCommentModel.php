@@ -21,4 +21,24 @@ class SnsCommentModel extends Model
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_at';
     protected $updateTime = 'update_at';
+
+    public function user() {
+        return $this->hasOne('UserModel', 'id', 'from_uid');
+    }
+
+    public function images() {
+        return $this->hasMany('SnsImagesCommentModel', 'from_id', 'id');
+    }
+
+    public function reply() {
+        return $this->hasMany('SnsReplyModel', 'comment_id', 'id');
+    }
+
+    public function likes() {
+        return $this->hasMany('SnsLikesCommentModel', 'comment_id', 'id');
+    }
+
+    public function getCreateAtAttr($value) {
+        return uc_time_ago($value);
+    }
 }

@@ -13,7 +13,6 @@ use api\sns\service\WechatService;
 use api\sns\validate\WxappValidate;
 use cmf\controller\RestBaseController;
 use think\Db;
-use wxapp\aes\WXBizDataCrypt;
 
 class WxappController extends RestBaseController
 {
@@ -48,13 +47,6 @@ class WxappController extends RestBaseController
 
         $wxUserData = $wechat->app->encryptor->decryptData($sessionKey, $data['iv'], $data['encrypted_data']);
 
-        dump($wxUserData);
-
-        exit();
-
-//        if ($errCode != 0) {
-//            $this->error('操作失败!');
-//        }
 
         $findThirdPartyUser = Db::name("third_party_user")
             ->where('openid', $openid)

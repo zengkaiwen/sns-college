@@ -23,6 +23,10 @@ class SnsTopicModel extends Model
     protected $updateTime = 'update_at';
 
     public function follow() {
-        return $this->hasMany('SnsTopicFollow', 'topic_id', 'id');
+        return $this->hasMany('SnsTopicFollowModel', 'topic_id', 'id');
+    }
+
+    public function getIconPathAttr($value, $data) {
+        return 'http://sns-file.zeuswk.com/'.$value;
     }
 }

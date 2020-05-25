@@ -19,7 +19,12 @@ class CommentService
 
         $comment = new SnsCommentModel();
         $findQuery = $comment->where('check_result', 1)
+            ->with(['user', 'images'])
+            ->withCount(['reply', 'likes'])
             ->where(function (Query $query) use ($params) {
+                if (empty($params['curr_user'])) { // 如果不是当前用户
+                    $query->where('is_secret', 0);
+                }
                 if (!empty($params['type'])) {
                     $query->where('type', $params['type']);
                 }
@@ -34,12 +39,24 @@ class CommentService
         if (!empty($params['order'])) {
             if ($params['order'] == 'likes') {
                 $findQuery->order('likes', 'desc');
-            } else {
+            } elseif ($params['order'] == 'create_at') {
                 $findQuery->order('create_at', 'desc');
             }
         }
 
         $result = $findQuery->select();
         return $result;
+    }
+
+    public function getDetailById($id) {
+        $comment = new SnsCommentModel();
+        $res = $comment->with(['user', 'images'])
+            ->withCount(['reply', 'likes'])
+            ->where([
+                'check_result'  => 1,
+                'id'            => $id,
+            ])
+            ->find();
+        return $res;
     }
 }

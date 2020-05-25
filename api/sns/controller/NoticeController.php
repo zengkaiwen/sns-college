@@ -27,20 +27,24 @@ class NoticeController extends RestUserBaseController
             $params = $this->request->post();
             $page = empty($params['page']) ? 1 : $params['page'];
 
-            if (!empty($params['id'])) {
-                SnsNoticeOfficialModel::destroy($params['id']);
-                $this->success('已读');
+            if (!empty($params['id'])) { // 如果前端有传Id那么就是已读该消息
+                $model = SnsNoticeOfficialModel::where([
+                    'id'    =>  $params['id'],
+                    'is_read'   =>  0
+                ])->find();
+                if ($model) {
+                    $model->is_read = 1;
+                    $model->save();
+                    $this->success('已读', true);
+                }
             }
 
-            try {
-                $result = SnsNoticeOfficialModel::where('notice_uid', $this->userId)
-                    ->page($page)
-                    ->order('create_at', 'desc')
-                    ->select();
-                $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
-            }
+            // 获取所有消息
+            $result = SnsNoticeOfficialModel::where('notice_uid', $this->userId)
+                ->page($page)
+                ->order('create_at', 'desc')
+                ->select();
+            $this->success('成功', $result);
 
         }
     }
@@ -52,19 +56,22 @@ class NoticeController extends RestUserBaseController
             $page = empty($params['page']) ? 1 : $params['page'];
 
             if (!empty($params['id'])) {
-                SnsNoticeFansModel::destroy($params['id']);
-                $this->success('已读');
+                $model = SnsNoticeFansModel::where([
+                    'id'    =>  $params['id'],
+                    'is_read'   =>  0
+                ])->find();
+                if ($model) {
+                    $model->is_read = 1;
+                    $model->save();
+                    $this->success('已读', true);
+                }
             }
 
-            try {
-                $result = SnsNoticeFansModel::where('notice_uid', $this->userId)
-                    ->page($page)
-                    ->order('create_at', 'desc')
-                    ->select();
-                $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
-            }
+            $result = SnsNoticeFansModel::where('notice_uid', $this->userId)
+                ->page($page)
+                ->order('create_at', 'desc')
+                ->select();
+            $this->success('成功', $result);
 
         }
     }
@@ -76,19 +83,23 @@ class NoticeController extends RestUserBaseController
             $page = empty($params['page']) ? 1 : $params['page'];
 
             if (!empty($params['id'])) {
-                SnsNoticeCommentModel::destroy($params['id']);
-                $this->success('已读');
+                $model = SnsNoticeCommentModel::where([
+                    'id'    =>  $params['id'],
+                    'is_read'   =>  0
+                ])->find();
+                if ($model) {
+                    $model->is_read = 1;
+                    $model->save();
+                    $this->success('已读', true);
+                }
             }
 
-            try {
-                $result = SnsNoticeCommentModel::where('notice_uid', $this->userId)
-                    ->page($page)
-                    ->order('create_at', 'desc')
-                    ->select();
-                $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
-            }
+            $result = SnsNoticeCommentModel::where('notice_uid', $this->userId)
+                ->with(['comment', 'fromUser'])
+                ->page($page)
+                ->order('create_at', 'desc')
+                ->select();
+            $this->success('成功', $result);
 
         }
     }
@@ -100,20 +111,58 @@ class NoticeController extends RestUserBaseController
             $page = empty($params['page']) ? 1 : $params['page'];
 
             if (!empty($params['id'])) {
-                SnsNoticeReplyModel::destroy($params['id']);
-                $this->success('已读');
+                $model = SnsNoticeReplyModel::where([
+                    'id'    =>  $params['id'],
+                    'is_read'   =>  0
+                ])->find();
+                if ($model) {
+                    $model->is_read = 1;
+                    $model->save();
+                    $this->success('已读', true);
+                }
             }
 
-            try {
-                $result = SnsNoticeReplyModel::where('notice_uid', $this->userId)
-                    ->page($page)
-                    ->order('create_at', 'desc')
-                    ->select();
-                $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
-            }
+            $result = SnsNoticeReplyModel::where('notice_uid', $this->userId)
+                ->with(['reply', 'fromUser'])
+                ->page($page)
+                ->order('create_at', 'desc')
+                ->select();
+            $this->success('成功', $result);
 
+        }
+    }
+
+    public function count() {
+        if ($this->request->isGet()) {
+
+            $official_count = SnsNoticeOfficialModel::where([
+                    'notice_uid'    =>  $this->userId,
+                    'is_read'       =>  0
+                ])->count();
+
+            $follow_count = SnsNoticeFansModel::where([
+                'notice_uid'    =>  $this->userId,
+                'is_read'       =>  0
+            ])->count();
+
+            $comment_count = SnsNoticeCommentModel::where([
+                'notice_uid'    =>  $this->userId,
+                'is_read'       =>  0
+            ])->count();
+
+            $reply_count = SnsNoticeReplyModel::where([
+                'notice_uid'    =>  $this->userId,
+                'is_read'       =>  0
+            ])->count();
+
+            $data = [
+                'official'  =>  $official_count,
+                'follow'    =>  $follow_count,
+                'comment'   =>  $comment_count,
+                'reply'     =>  $reply_count,
+            ];
+
+            $this->success('完成', $data);
         }
     }
 }

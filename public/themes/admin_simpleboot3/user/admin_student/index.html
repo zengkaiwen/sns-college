@@ -1,10 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
+<include file="public@header"/>
 </head>
 <body>
-$END$
+<div class="wrap">
+    <ul class="nav nav-tabs">
+        <li class="active"><a>学生认证列表</a></li>
+    </ul>
+    <!--<form class="well form-inline margin-top-20" method="post" action="{:url('user/adminIndex/index')}">-->
+        <!--用户ID：-->
+        <!--<input class="form-control" type="text" name="uid" style="width: 200px;" value="{:input('request.uid')}"-->
+               <!--placeholder="请输入用户ID">-->
+        <!--关键字：-->
+        <!--<input class="form-control" type="text" name="keyword" style="width: 200px;" value="{:input('request.keyword')}"-->
+               <!--placeholder="用户名/昵称/邮箱/手机">-->
+        <!--<input type="submit" class="btn btn-primary" value="搜索"/>-->
+        <!--<a class="btn btn-danger" href="{:url('user/adminIndex/index')}">清空</a>-->
+    <!--</form>-->
+    <form method="post" class="js-ajax-form margin-top-20">
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>真实姓名</th>
+                <th>昵称</th>
+                <th>头像</th>
+                <th>学校</th>
+                <th>学历</th>
+                <th>入学年份</th>
+                <th>认证图片</th>
+                <th>{:lang('ACTIONS')}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <php>
+                $user_statuses=array("0"=>lang('USER_STATUS_BLOCKED'),"1"=>lang('USER_STATUS_ACTIVATED'),"2"=>lang('USER_STATUS_UNVERIFIED'));
+            </php>
+            <foreach name="list" item="vo">
+                <tr>
+                    <td>{$vo.id}</td>
+                    <td>{$vo.user_name}</td>
+                    <td>{$vo['user_nickname']?$vo['user_nickname']:lang('NOT_FILLED')}</td>
+                    <td><img width="50" height="50" src="{:url('user/public/avatar',array('id'=>$vo['id']))}"/></td>
+                    <td>{$vo.school}</td>
+                    <td>{$vo.degree}</td>
+                    <td>{$vo.school_year}</td>
+                    <td><img width="100" height="80" src="{$vo.auth_image}" onclick="popImage('{$vo.auth_image}')" /></td>
+                    <td>
+                        <a class="btn btn-xs btn-warning"
+                           onclick="reject({$vo['id']})"
+                        >驳回申请</a>
+                        <a class="btn btn-xs btn-success js-ajax-dialog-btn"
+                           href="{:url('adminStudent/resolve',array('id'=>$vo['id']))}"
+                           data-msg="确定通过申请?"
+                        >通过申请</a>
+                    </td>
+                </tr>
+            </foreach>
+            </tbody>
+        </table>
+        <div class="pagination">{$page}</div>
+    </form>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script src="__TMPL__/public/assets/layer/layer.js"></script>
+<script>
+    function popImage(url) {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: ['auto'],
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: '<img height="500" src="'+ url +'">'
+        });
+    }
+
+    function reject(id) {
+        layer.prompt({title: '输入驳回原因', formType: 2}, function(reason, index){
+            layer.close(index);
+            $.ajax({
+                url: "{:url('adminStudent/reject')}",
+                data: {
+                    id: id,
+                    content: reason,
+                },
+                method: 'GET',
+                success: function (data) {
+                    layer.msg(data.msg);
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                }
+            })
+        });
+    }
+</script>
 </body>
 </html>

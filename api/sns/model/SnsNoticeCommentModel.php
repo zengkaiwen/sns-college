@@ -10,15 +10,24 @@ namespace api\sns\model;
 
 
 use think\Model;
-use think\model\concern\SoftDelete;
 
 class SnsNoticeCommentModel extends Model
 {
-    use SoftDelete;
-    protected $deleteTime = 'delete_at';
-    protected $defaultSoftDelete = 0;
 
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_at';
     protected $updateTime = 'update_at';
+
+    public function getCreateAtAttr($value) {
+        return date( "Y-m-d H:i",$value);
+    }
+
+    public function comment()
+    {
+        return $this->hasOne('SnsCommentModel', 'id', 'comment_id');
+    }
+
+    public function fromUser() {
+        return $this->hasOne('UserModel', 'id', 'from_uid');
+    }
 }

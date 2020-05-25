@@ -11,9 +11,9 @@ namespace app\demo\controller;
 
 use cmf\controller\HomeBaseController;
 
-class Index extends HomeBaseController
+class IndexController extends HomeBaseController
 {
     public function index() {
-        echo sp_password()
+        echo cmf_password('123456');
     }
 }

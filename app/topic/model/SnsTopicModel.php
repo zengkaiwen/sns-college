@@ -9,7 +9,17 @@
 namespace app\topic\model;
 
 
-class SnsTopicModel
+use think\Model;
+use think\model\concern\SoftDelete;
+
+class SnsTopicModel extends Model
 {
 
+    use SoftDelete;
+    protected $deleteTime = 'delete_at';
+    protected $defaultSoftDelete = 0;
+
+    public function getIconPathAttr($value) {
+        return 'http://sns-file.zeuswk.com/'.$value;
+    }
 }

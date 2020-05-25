@@ -76,6 +76,7 @@ class TopicController extends RestUserBaseController
             $topicFollow = new SnsTopicFollowModel();
 
             $result = $topicFollow
+                ->with(['topic'])
                 ->where('user_id', $this->userId)
                 ->order('create_at', 'desc')
                 ->select();

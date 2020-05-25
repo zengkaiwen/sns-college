@@ -21,4 +21,8 @@ class SnsNoticeFansModel extends Model
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_at';
     protected $updateTime = 'update_at';
+
+    public function getCreateAtAttr($value) {
+        return date( "Y-m-d H:i",$value);
+    }
 }

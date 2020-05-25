@@ -257,7 +257,7 @@ if ( typeof define === 'function' && define.amd ) {
      *
      * @param {Function[]} listeners Array of listeners to search through.
      * @param {Function} listener Method to look for.
-     * @return {Number} Index of the specified listener, -1 if not found
+     * @return {Number} IndexController of the specified listener, -1 if not found
      * @api private
      */
     function indexOfListener(listeners, listener) {

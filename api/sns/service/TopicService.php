@@ -18,6 +18,7 @@ class TopicService
     public function topicList($params) {
         $topic  =   new SnsTopicModel();
         $findQuery =   $topic
+            ->withCount(['follow'])
             ->where('type', 1)
             ->where(function (Query $query) use ($params) {
                 if (!empty($params['keyword'])) { // 模糊查询
@@ -30,10 +31,12 @@ class TopicService
         if (!empty($params['page'])) {
             $findQuery->page($params['page']);
         }
-        if (!empty($params['order'])) { // 根据话题的关注度排序
-            $findQuery->order('follow_count', 'desc');
-        } else {
-            $findQuery->order('create_at', 'desc');
+        if (!empty($params['order'])) {
+            if ($params['order'] == 'follow') { // 根据话题的关注度排序
+                $findQuery->order('follow_count', 'desc');
+            } else {
+                $findQuery->order('create_at', 'desc');
+            }
         }
         $result = $findQuery->select();
         return $result;
@@ -50,7 +53,7 @@ class TopicService
                 }
             })
             ->page($page);
-        if (!empty($params['rank'])) {
+        if (!empty($params['order'])) {
             $findQuery->order('post_count', 'desc');
         } else {
             $findQuery->order('create_at', 'desc');

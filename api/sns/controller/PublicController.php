@@ -10,6 +10,7 @@ namespace api\sns\controller;
 
 
 use api\sns\model\SnsTopicModel;
+use api\sns\model\UserModel;
 use api\sns\service\CommentService;
 use api\sns\service\PostService;
 use api\sns\service\ReplyService;
@@ -49,7 +50,9 @@ class PublicController extends RestBaseController
                 $this->error($validate->getError());
             }
 
-            $findTopic = SnsTopicModel::get($params['id']);
+            $findTopic = SnsTopicModel::withCount(['follow'])->where([
+                'id' => $params['id']
+            ])->find();
             $this->success('获取成功', $findTopic);
         }
     }
@@ -86,16 +89,31 @@ class PublicController extends RestBaseController
      *      按评论数排序 order=comment
      */
     public function postList() {
+
         if ($this->request->isGet()) {
             $params = $this->request->get();
 
-            try {
-                $service = new PostService();
-                $result = $service->postList($params);
-                $this->success('获取成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
+            $postService = new PostService();
+            $data = $postService->postList($params);
+            if (!empty($data)) {
+                $this->success('success', $data);
             }
+            $this->error('获取失败');
+        }
+    }
+
+    /**
+     * 根据id获取帖子详情
+     */
+    public function post() {
+        if ($this->request->isGet()) {
+            $id = $this->request->get('id');
+            $postService = new PostService();
+            $data = $postService->getDetailById($id);
+            if (!empty($data)) {
+                $this->success('success', $data);
+            }
+            $this->error('fail');
         }
     }
 
@@ -107,19 +125,27 @@ class PublicController extends RestBaseController
      *      获取神评 type=1
      *      获取某个帖子的所有评论 post_id
      *      获取某人的所有评论   from_uid
-     *      按点赞量排序  order=likes
+     *      按点赞量/时间排序  order=likes/create_at
      */
     public function commentList() {
         if ($this->request->isGet()) {
             $params = $this->request->get();
 
-            try {
-                $comment = new CommentService();
-                $result = $comment->commentList($params);
-                $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
+            $comment = new CommentService();
+            $result = $comment->commentList($params);
+            $this->success('成功', $result);
+        }
+    }
+
+    public function comment() {
+        if ($this->request->isGet()) {
+            $id = $this->request->get('id');
+            $commentService = new CommentService();
+            $data = $commentService->getDetailById($id);
+            if (!empty($data)) {
+                $this->success('success', $data);
             }
+            $this->error('fail');
         }
     }
 
@@ -132,17 +158,49 @@ class PublicController extends RestBaseController
      *      获取某个用户的回复 from_uid
      *      获取发给谁的回复  to_uid
      */
-    public function getList() {
+    public function replyList() {
         if ($this->request->isGet()) {
             $params = $this->request->get();
 
-            try {
-                $reply = new ReplyService();
-                $result = $reply->replyList($params);
+
+            $reply = new ReplyService();
+            $result = $reply->replyList($params);
+            if ($result) {
                 $this->success('成功', $result);
-            } catch (\Exception $e) {
-                $this->error('系统错误');
+            } else {
+                $this->error('失败');
             }
+
         }
     }
+
+    public function reply() {
+        if ($this->request->isGet()) {
+            $id = $this->request->get('id');
+            $commentService = new ReplyService();
+            $data = $commentService->getDetailById($id);
+            if (!empty($data)) {
+                $this->success('success', $data);
+            }
+            $this->error('fail');
+        }
+    }
+
+    // 用户相关
+    /**
+     * 根据用户id获取用户信息
+     */
+    public function getUserInfo() {
+        if ($this->request->isGet()) {
+            $params = $this->request->get();
+
+            $usermodel = new UserModel();
+            $user = $usermodel->withCount(['fans', 'follow', 'topic'])->get($params['id']);
+            if (!empty($user)) {
+                $this->success('success', $user);
+            }
+            $this->error('查找失败');
+        }
+    }
+
 }

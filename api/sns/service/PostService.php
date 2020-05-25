@@ -18,6 +18,8 @@ class PostService
         $page = empty($params['page']) ? 1 : $params['page'];
         $post = new SnsPostModel();
         $findQuery = $post->where('check_result', 1)
+            ->with(['user', 'images', 'topic'])
+            ->withCount(['comment', 'likes'])
             ->where(function (Query $query) use ($params) {
                 // 获取某个话题下的帖子
                 if (!empty($params['topic_id'])) {
@@ -40,14 +42,26 @@ class PostService
         if (!empty($params['order'])) {
             if ($params['order'] == 'likes') {
                 $findQuery->order('likes', 'desc');
-            } else if ($params['order'] == 'comment') {
+            } elseif ($params['order'] == 'comment') {
                 $findQuery->order('likes', 'desc');
-            } else {
+            } elseif ($params['order'] == 'create_at') {
                 $findQuery->order('create_at', 'desc');
             }
         }
         $result = $findQuery->select();
         return $result;
 
+    }
+
+    public function getDetailById($id) {
+        $post = new SnsPostModel();
+        $res = $post->with(['user', 'images', 'topic'])
+            ->withCount(['comment', 'likes'])
+            ->where([
+                'check_result'  => 1,
+                'id'            => $id,
+            ])
+            ->find();
+        return $res;
     }
 }

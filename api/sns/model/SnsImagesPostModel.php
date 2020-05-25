@@ -16,4 +16,11 @@ class SnsImagesPostModel extends Model
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_at';
     protected $updateTime = false;
+
+    public function getUrlAttr($value, $data) {
+        if ($data['from'] == 1) {
+            return 'http://sns-file.zeuswk.com/'.$value;
+        }
+        return $value;
+    }
 }
