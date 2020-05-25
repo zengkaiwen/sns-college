@@ -1,27 +1,19 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkCMF [ WE CAN DO IT MORE SIMPLE ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2013-2018 http://www.thinkcmf.com All rights reserved.
-// +----------------------------------------------------------------------
-// | Released under the MIT License.
-// +----------------------------------------------------------------------
-// | Author: 老猫 <thinkcmf@126.com>
-// +----------------------------------------------------------------------
+/**
+ * Created by PhpStorm.
+ * User: Kevin
+ * Date: 2020/4/30
+ * Time: 11:06
+ */
 
 namespace app\demo\controller;
 
+
 use cmf\controller\HomeBaseController;
 
-class IndexController extends HomeBaseController
+class Index extends HomeBaseController
 {
-    public function index()
-    {
-        return $this->fetch(':index');
-    }
-
-    public function ws()
-    {
-        return $this->fetch(':ws');
+    public function index() {
+        echo sp_password()
     }
 }
